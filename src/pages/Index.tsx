@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useArticles, useScrapeArticles } from '@/hooks/useArticles';
+import { useArticlesRealtime } from '@/hooks/useArticlesRealtime';
 import { ArticleCard } from '@/components/ArticleCard';
 import { ArticleViewer } from '@/components/ArticleViewer';
 import { Article } from '@/lib/api/articles';
@@ -12,6 +13,9 @@ const Index = () => {
   const scrapeMutation = useScrapeArticles();
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
+  
+  // Enable realtime updates
+  useArticlesRealtime();
 
   const handleViewArticle = (article: Article) => {
     setSelectedArticle(article);
