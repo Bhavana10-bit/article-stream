@@ -24,8 +24,8 @@ serve(async (req) => {
 
     console.log('Starting to scrape BeyondChats blog...');
 
-    // First, map the blog section to find all blog URLs
-    const mapResponse = await fetch('https://api.firecrawl.dev/v1/map', {
+    // First, scrape the blog page to extract links
+    const blogPageResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlApiKey}`,
@@ -33,24 +33,25 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         url: 'https://beyondchats.com/blog',
-        limit: 100,
-        includeSubdomains: false,
+        formats: ['links', 'markdown'],
+        onlyMainContent: false,
       }),
     });
 
-    const mapData = await mapResponse.json();
+    const blogPageData = await blogPageResponse.json();
+    console.log('Blog page scrape response:', JSON.stringify(blogPageData).slice(0, 500));
     
-    if (!mapData.success || !mapData.links) {
-      console.error('Failed to map blog:', mapData);
-      throw new Error('Failed to map BeyondChats blog');
-    }
+    // Access links from the nested data structure
+    const allLinks = blogPageData.data?.links || blogPageData.links || [];
+    console.log('All links found:', allLinks.length);
 
     // Filter blog article URLs (exclude pagination, tags, etc.)
-    const blogUrls = mapData.links.filter((url: string) => 
+    const blogUrls = allLinks.filter((url: string) => 
       url.includes('/blog/') && 
       !url.includes('/page/') && 
       !url.includes('/tag/') &&
       !url.includes('/category/') &&
+      !url.includes('#') &&
       url !== 'https://beyondchats.com/blog/' &&
       url !== 'https://beyondchats.com/blog'
     );
