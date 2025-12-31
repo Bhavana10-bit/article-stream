@@ -22,9 +22,9 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
-    console.log('Starting to scrape BeyondChats blog...');
+    console.log('Starting to scrape BeyondChats blogs...');
 
-    // First, scrape the blog page to extract links
+    // First, scrape the blogs page to extract links (note: it's /blogs/ not /blog/)
     const blogPageResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
@@ -32,7 +32,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: 'https://beyondchats.com/blog',
+        url: 'https://beyondchats.com/blogs',
         formats: ['links', 'markdown'],
         onlyMainContent: false,
       }),
@@ -44,17 +44,19 @@ serve(async (req) => {
     // Access links from the nested data structure
     const allLinks = blogPageData.data?.links || blogPageData.links || [];
     console.log('All links found:', allLinks.length);
+    console.log('Sample links:', allLinks.slice(0, 10));
 
-    // Filter blog article URLs (exclude pagination, tags, etc.)
-    const blogUrls = allLinks.filter((url: string) => 
-      url.includes('/blog/') && 
-      !url.includes('/page/') && 
-      !url.includes('/tag/') &&
-      !url.includes('/category/') &&
-      !url.includes('#') &&
-      url !== 'https://beyondchats.com/blog/' &&
-      url !== 'https://beyondchats.com/blog'
-    );
+    // Filter blog article URLs - BeyondChats uses /blogs/ for individual articles too
+    const blogUrls = allLinks.filter((url: string) => {
+      const isBlogArticle = url.includes('/blogs/') && 
+        !url.includes('/page/') && 
+        !url.includes('/tag/') &&
+        !url.includes('/category/') &&
+        !url.includes('#') &&
+        url !== 'https://beyondchats.com/blogs/' &&
+        url !== 'https://beyondchats.com/blogs';
+      return isBlogArticle;
+    });
 
     console.log(`Found ${blogUrls.length} blog articles`);
 
