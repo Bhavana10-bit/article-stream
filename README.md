@@ -2,52 +2,6 @@
 
 An intelligent content enhancement system that scrapes blog articles, enriches them with AI-generated improvements using external references, and displays them in a real-time updating interface.
 
-## Project Architecture
-
-```mermaid
-flowchart TB
-    subgraph UI["Frontend (React + Vite)"]
-        A[Index Page] --> B[Scrape Articles Button]
-        A --> C[Article Cards Grid]
-        A --> D[Enhance Article Button]
-        A --> E[Article Viewer Dialog]
-    end
-
-    subgraph EF["Edge Functions (Deno)"]
-        F[scrape-beyondchats]
-        G[enhance-article]
-        H[articles-crud]
-    end
-
-    subgraph External["External Services"]
-        I[Firecrawl API]
-        J[Lovable AI]
-    end
-
-    subgraph DB["Lovable Cloud Database"]
-        K[(articles table)]
-    end
-
-    B -->|"POST /scrape-beyondchats"| F
-    F -->|"1. Scrape blog page"| I
-    I -->|"2. Return article links"| F
-    F -->|"3. Scrape each article"| I
-    I -->|"4. Return content"| F
-    F -->|"5. Insert articles"| K
-
-    D -->|"POST /enhance-article"| G
-    G -->|"6. Fetch article"| K
-    G -->|"7. Search references"| I
-    I -->|"8. Return related articles"| G
-    G -->|"9. Scrape references"| I
-    I -->|"10. Return reference content"| G
-    G -->|"11. Enhance with AI"| J
-    J -->|"12. Return enhanced content"| G
-    G -->|"13. Update article"| K
-
-    K -->|"Real-time subscription"| C
-    C -->|"Auto-refresh on changes"| A
-```
 
 ## Data Flow
 
